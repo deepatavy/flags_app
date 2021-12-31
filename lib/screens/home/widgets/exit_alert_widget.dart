@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 showExitAlertDialog(BuildContext context) {
   AlertDialog alert = AlertDialog(
-    title: Text(Constants.app_name),
+    title: Text(Constants.APP_NAME),
     content: Text("Are you sure you want to exit?"),
     actions: [
       TextButton(

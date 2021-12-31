@@ -1,4 +1,5 @@
 class Constants {
- static String app_name = "Countries!";
- static String key_data_loaded = "data_loaded";
+ static const String APP_NAME = "Countries!";
+ static const String KEY_DATA_LOADED = "data_loaded";
+ static const String API_URL = 'https://restcountries.com/v3.1/all';
 }

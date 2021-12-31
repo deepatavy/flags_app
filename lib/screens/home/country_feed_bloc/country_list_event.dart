@@ -1,0 +1,3 @@
+enum CountryListEvents {
+  fetchCountries,
+}

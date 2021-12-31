@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   checkForDownload() async {
     prefs = await SharedPreferences.getInstance();
-    isDataLoaded = prefs.getBool(Constants.key_data_loaded) ?? false;
+    isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
   }
 
   @override
