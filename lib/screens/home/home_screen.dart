@@ -26,17 +26,20 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       drawer: NavigationDrawerWidget(),
       body: ListView.builder(
-        itemBuilder: (context, index) => ListTile(
-          title: Text(regionList[index]),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CountryListScreen(
-                        region: regionList[index],
-                      )),
-            );
-          },
+        itemBuilder: (context, index) => Card(
+          child: ListTile(
+            title: Text(regionList[index]),
+            trailing: Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CountryListScreen(
+                          region: regionList[index],
+                        )),
+              );
+            },
+          ),
         ),
         itemCount: regionList.length,
       ),
