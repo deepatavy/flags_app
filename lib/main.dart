@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flags App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
       home: const SplashScreen(),
     );
