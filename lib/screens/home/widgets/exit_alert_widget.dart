@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flags_app/commons/constants.dart';
 import 'package:flutter/material.dart';
-
-showExitAlertDialog(BuildContext context) {
+//From Drawer boolean is used to pop out from dialog and drawer together for better ux
+showExitAlertDialog(BuildContext context, {bool fromDrawer = false}) {
   AlertDialog alert = AlertDialog(
     title: Text(Constants.APP_NAME),
     content: Text("Are you sure you want to exit?"),
@@ -11,14 +11,18 @@ showExitAlertDialog(BuildContext context) {
       TextButton(
         child: Text("No"),
         onPressed: () {
-          Navigator.pop(context);
+          if (fromDrawer) {
+            Navigator.pop(context);
+          }
           Navigator.pop(context);
         },
       ),
       TextButton(
         child: Text("Yes"),
         onPressed: () {
-          Navigator.pop(context);
+          if (fromDrawer) {
+            Navigator.pop(context);
+          }
           Future.delayed(const Duration(milliseconds: 500), () {
             exit(0);
           });
