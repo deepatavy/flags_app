@@ -35,7 +35,7 @@ class NavigationDrawerWidget extends StatelessWidget {
             title: Text('Exit'),
             leading: Icon(Icons.exit_to_app),
             onTap: () {
-              showExitAlertDialog(context);
+              showExitAlertDialog(context,fromDrawer: true);
             },
           ),
         ],
