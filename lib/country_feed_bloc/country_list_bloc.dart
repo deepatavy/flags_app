@@ -11,7 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'bloc.dart';
 
 class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
-  CountryListBloc() : super(Empty());
+  final CountryListRepository? countryRepo;
+
+  CountryListBloc({this.countryRepo}) : super(Empty());
 
   @override
   Stream<CountryListState> mapEventToState(CountryListEvents event) async* {
@@ -23,7 +25,7 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         bool isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
         if (!isDataLoaded) {
-          countryList = await CountryServices().getCountryList();
+          countryList = await countryRepo!.getCountryList();
           CountryDatabase.instance.insertAllCountries(countryList);
         }
         regionList = await CountryDatabase.instance.getAllRegions();
@@ -48,9 +50,13 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
     }
     if (event is FetchAllCountriesForRegion) {
       yield LoadingData();
-      List<Country> countryList =
-          await CountryDatabase.instance.getCountriesForRegion(event.region);
+      List<Country> countryList = await CountryDatabase.instance.getCountriesForRegion(event.region);
       yield CountryListForRegionLoaded(countryList: countryList);
+    }
+    if (event is FetchBorderCountries) {
+      yield LoadingData();
+      List<Country> countryList = await CountryDatabase.instance.getBorderCountries(event.countryId);
+      yield CountryListForBordersLoaded(countryList: countryList);
     }
   }
 }

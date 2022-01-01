@@ -1,5 +1,7 @@
 import 'package:flags_app/commons/constants.dart';
+import 'package:flags_app/screens/home/model/border_model.dart';
 import 'package:flags_app/screens/home/model/country_model.dart';
+import 'package:flags_app/screens/home/model/language_model.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -25,31 +27,62 @@ class CountryDatabase {
   }
 
   Future _createDB(Database db, int version) async {
-    final idType = 'TEXT PRIMARY KEY NOT NULL';
+    final idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
+    final countryIdType = 'TEXT PRIMARY KEY NOT NULL';
     final textType = 'TEXT NOT NULL';
 
     await db.execute('''CREATE TABLE $tableCountry ( 
-          ${CountryFields.id} $idType, 
+          ${CountryFields.id} $countryIdType, 
           ${CountryFields.name} $textType,
           ${CountryFields.region} $textType,
           ${CountryFields.flagUrl} $textType,
-          ${CountryFields.capital} $textType
+          ${CountryFields.capital} $textType,
+          ${CountryFields.languages} $textType
           )''');
-  }
 
-  Future<void> create(Country country) async {
-    final db = await instance.database;
-    await db.insert(tableCountry, country.toJson());
+    await db.execute('''CREATE TABLE $tableBorder ( 
+          ${BorderFields.id} $idType, 
+          ${BorderFields.countryId} $textType, 
+          ${BorderFields.neighbourId} $textType
+          )''');
+
+    await db.execute('''CREATE TABLE $tableLanguage ( 
+          ${LanguageFields.id} $idType, 
+          ${LanguageFields.countryId} $textType, 
+          ${LanguageFields.language} $textType
+          )''');
   }
 
   Future<void> insertAllCountries(List<Country> countryList) async {
     final db = await instance.database;
     Batch batch = db.batch();
-    countryList.forEach((val) {
-      try {
-        batch.insert(tableCountry, val.toJson());
-      } catch (e) {
-        print(e);
+    countryList.forEach((country) {
+      batch.insert(
+        tableCountry,
+        country.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      if (country.borderList != null && country.borderList!.length > 0) {
+        country.borderList!.forEach((border) {
+          batch.insert(
+            tableBorder,
+            {
+              BorderFields.countryId: country.id,
+              BorderFields.neighbourId: border,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        });
+      }
+      for (String value in country.languages!.values) {
+        batch.insert(
+          tableLanguage,
+          {
+            LanguageFields.countryId: country.id,
+            LanguageFields.language: value,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
     });
     batch.commit();
@@ -73,6 +106,16 @@ class CountryDatabase {
     final result =
         await db.query(tableCountry, orderBy: orderBy, where: '${CountryFields.region} = ?', whereArgs: [region]);
     return result.map((json) => Country.fromDBJson2(json)).toList();
+  }
+
+  Future<List<Country>> getBorderCountries(String countryId) async {
+    final db = await instance.database;
+    var resultSet = await db.rawQuery(
+        "SELECT" +
+            " $tableCountry.${CountryFields.id},$tableCountry.${CountryFields.name},$tableCountry.${CountryFields.flagUrl},$tableCountry.${CountryFields.capital},$tableCountry.${CountryFields.region},$tableCountry.${CountryFields.languages}" +
+            " FROM $tableCountry JOIN $tableBorder ON  $tableBorder.neighbour_id = $tableCountry._id WHERE $tableBorder.country_id IS ? ORDER BY $tableCountry.name ASC",
+        [countryId]);
+    return resultSet.map((json) => Country.fromDBJson2(json)).toList();
   }
 
   Future<List<String>> getAllRegions() async {

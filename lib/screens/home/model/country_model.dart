@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 final String tableCountry = 'country';
 
 class CountryFields {
-  static final List<String> values = [id, name, region, flagUrl, capital];
+  static final List<String> values = [id, name, region, flagUrl, capital, languages];
 
   static final String id = '_id';
   static final String name = 'name';
   static final String region = 'region';
   static final String flagUrl = 'flag_url';
   static final String capital = 'capital';
+  static final String languages = 'languages';
 }
 
 class Country {
@@ -17,8 +20,8 @@ class Country {
     required this.region,
     required this.flagUrl,
     required this.capital,
-    this.languageListString,
-    this.borderListString,
+    this.languages,
+    this.borderList,
   });
 
   String id;
@@ -26,8 +29,8 @@ class Country {
   String region;
   String flagUrl;
   String capital;
-  String? languageListString;
-  String? borderListString;
+  Map<String, dynamic>? languages;
+  List? borderList;
 
   factory Country.fromJson(Map<String, dynamic> json) => Country(
       id: json["cca3"],
@@ -35,10 +38,8 @@ class Country {
       region: json["region"],
       flagUrl: json["flags"]["png"],
       capital: json["capital"] != null ? json["capital"][0] ?? '' : '',
-      languageListString: json["languages"] != null && json["languages"].values != null
-          ? json["languages"].values.toList().toString()
-          : '',
-      borderListString: json["borders"].toString());
+      languages: json["languages"] != null ? json["languages"] : {},
+      borderList: json["borders"] != null ? json["borders"].toList() : []);
 
   factory Country.fromDBJson2(Map<String, dynamic> json) => Country(
         id: json[CountryFields.id],
@@ -46,6 +47,7 @@ class Country {
         region: json[CountryFields.region],
         flagUrl: json[CountryFields.flagUrl],
         capital: json[CountryFields.capital],
+        languages: jsonDecode(json[CountryFields.languages]),
       );
 
   Map<String, Object?> toJson() => {
@@ -54,6 +56,7 @@ class Country {
         CountryFields.region: region,
         CountryFields.flagUrl: flagUrl,
         CountryFields.capital: capital,
+        CountryFields.languages: jsonEncode(languages),
       };
 }
 

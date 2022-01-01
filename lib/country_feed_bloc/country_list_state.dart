@@ -15,6 +15,11 @@ class CountryListForRegionLoaded extends CountryListState {
   CountryListForRegionLoaded({required this.countryList});
 }
 
+class CountryListForBordersLoaded extends CountryListState {
+  final List<Country> countryList;
+  CountryListForBordersLoaded({required this.countryList});
+}
+
 class RegionListLoaded extends CountryListState {
   final List<String> regionList;
 

@@ -7,13 +7,16 @@ abstract class CountryListEvents extends Equatable {
   List<Object> get props => [];
 }
 
+class FetchBorderCountries extends CountryListEvents {
+  final String countryId;
+
+  FetchBorderCountries(this.countryId);
+}
+
 class FetchAllCountriesForRegion extends CountryListEvents {
   final String region;
 
   FetchAllCountriesForRegion(this.region);
-
-  @override
-  List<Object> get props => [region];
 }
 
 class FetchRegions extends CountryListEvents {}

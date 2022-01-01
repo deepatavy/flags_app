@@ -1,10 +1,10 @@
 import 'package:flags_app/screens/home/model/country_model.dart';
-import 'package:flags_app/screens/neighbours/neighbour_country_list_screen.dart';
 import 'package:flutter/material.dart';
 
-class CountryListWidget extends StatelessWidget {
+class NeighbourCountryListWidget extends StatelessWidget {
   final List<Country> countryList;
-  const CountryListWidget({required this.countryList});
+
+  const NeighbourCountryListWidget({required this.countryList});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class CountryListWidget extends StatelessWidget {
             title: Text(countryList[index].name),
             dense: false,
             tileColor: Colors.white,
-            subtitle: Text(countryList[index].capital),
+            subtitle: Text(countryList[index].languages!.values.toString()),
             leading: Image.network(
               countryList[index].flagUrl,
               fit: BoxFit.cover,
@@ -24,15 +24,6 @@ class CountryListWidget extends StatelessWidget {
               width: 60,
             ),
             style: ListTileStyle.list,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NeighbourCountryListScreen(
-                          country: countryList[index].id,
-                        )),
-              );
-            },
           ),
         ),
       ),
