@@ -1,6 +1,6 @@
-import 'package:flags_app/screens/countries/country_list_screen.dart';
 import 'package:flags_app/screens/home/api/services.dart';
 import 'package:flags_app/screens/home/widgets/navigation_drawer_widget.dart';
+import 'package:flags_app/screens/home/widgets/region_list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'country_feed_bloc/bloc.dart';
@@ -31,7 +31,6 @@ class _HomeScreenBuildState extends State<HomeScreenBuild> {
   @override
   void initState() {
     super.initState();
-    // BlocProvider.of<CountryListBloc>(context).add(CountryListEvents.fetchCountries);
     BlocProvider.of<CountryListBloc>(context).add(FetchRegions());
   }
 
@@ -49,24 +48,7 @@ class _HomeScreenBuildState extends State<HomeScreenBuild> {
           return Center(child: Text(error.message));
         }
         if (state is RegionListLoaded) {
-          return ListView.builder(
-            itemBuilder: (context, index) => Card(
-              child: ListTile(
-                title: Text(state.regionList[index]),
-                trailing: Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CountryListScreen(
-                              region: state.regionList[index],
-                            )),
-                  );
-                },
-              ),
-            ),
-            itemCount: state.regionList.length,
-          );
+          return RegionListWidget(regionList: state.regionList);
         }
         return Center(child: CircularProgressIndicator());
       }),
