@@ -1,9 +1,8 @@
-import 'package:flags_app/screens/home/api/services.dart';
+import 'package:flags_app/country_feed_bloc/bloc.dart';
 import 'package:flags_app/screens/home/widgets/navigation_drawer_widget.dart';
 import 'package:flags_app/screens/home/widgets/region_list_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'country_feed_bloc/bloc.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -11,7 +10,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => CountryListBloc(countryRepo: CountryServices()),
+      create: (context) => CountryListBloc(),
       child: HomeScreenBuild(),
     );
   }
@@ -25,9 +24,6 @@ class HomeScreenBuild extends StatefulWidget {
 }
 
 class _HomeScreenBuildState extends State<HomeScreenBuild> {
-  late bool isDataLoaded;
-  late bool isLoading = false;
-
   @override
   void initState() {
     super.initState();

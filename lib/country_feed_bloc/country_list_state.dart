@@ -12,7 +12,6 @@ class LoadingData extends CountryListState {}
 
 class CountryListForRegionLoaded extends CountryListState {
   final List<Country> countryList;
-
   CountryListForRegionLoaded({required this.countryList});
 }
 

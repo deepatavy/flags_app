@@ -1,55 +1,69 @@
-import 'package:flags_app/commons/asset_items.dart';
+import 'package:flags_app/country_feed_bloc/bloc.dart';
+import 'package:flags_app/screens/countries/widget/country_list_widget.dart';
 import 'package:flags_app/screens/home/widgets/navigation_drawer_widget.dart';
-import 'package:flags_app/screens/neighbours/neighbour_country_list_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CountryListScreen extends StatefulWidget {
+class CountryListScreen extends StatelessWidget {
   final String region;
 
   const CountryListScreen({required this.region});
 
   @override
-  _CountryListScreenState createState() => _CountryListScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CountryListBloc(),
+      child: CountryListBuild(
+        region: region,
+      ),
+    );
+  }
 }
 
-class _CountryListScreenState extends State<CountryListScreen> {
-  List<String> countryList = ["Afghanistan", "India", "USA", "UK"];
+class CountryListBuild extends StatefulWidget {
+  final String region;
+
+  const CountryListBuild({required this.region});
+
+  @override
+  _CountryListBuildState createState() => _CountryListBuildState();
+}
+
+class _CountryListBuildState extends State<CountryListBuild> {
+  @override
+  void initState() {
+    super.initState();
+    BlocProvider.of<CountryListBloc>(context).add(FetchAllCountriesForRegion(widget.region));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.region),
-        centerTitle: true,
-      ),
-      drawer: NavigationDrawerWidget(),
-      body: ListView.builder(
-        itemBuilder: (context, index) => Card(
-          child: ListTile(
-            title: Text(countryList[index]),
-            dense: false,
-            tileColor: Colors.white,
-            subtitle: Text("capital $index"),
-            leading: Image.asset(
-              imgLogoPath,
-              fit: BoxFit.cover,
-              height: 60,
-              width: 60,
-            ),
-            style: ListTileStyle.list,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NeighbourCountryListScreen(
-                          region: countryList[index],
-                        )),
-              );
-            },
-          ),
+        appBar: AppBar(
+          title: Text(widget.region),
+          centerTitle: true,
+          actions: [
+            GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Icon(Icons.arrow_back_ios),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
         ),
-        itemCount: countryList.length,
-      ),
-    );
+        drawer: NavigationDrawerWidget(),
+        body: BlocBuilder<CountryListBloc, CountryListState>(builder: (BuildContext context, CountryListState state) {
+          if (state is ErrorLoadingCountries) {
+            final error = state.error;
+            return Center(child: Text(error.message));
+          }
+          if (state is CountryListForRegionLoaded) {
+            return CountryListWidget(countryList: state.countryList);
+          }
+          return Center(child: CircularProgressIndicator());
+        }));
   }
 }

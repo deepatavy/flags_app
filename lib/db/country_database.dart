@@ -70,12 +70,8 @@ class CountryDatabase {
   Future<List<Country>> getCountriesForRegion(String region) async {
     final db = await instance.database;
     final orderBy = '${CountryFields.name} ASC';
-    final result = await db.query(
-      tableCountry,
-      orderBy: orderBy,
-      where: '${CountryFields.region} = region',
-      columns: CountryFields.values,
-    );
+    final result =
+        await db.query(tableCountry, orderBy: orderBy, where: '${CountryFields.region} = ?', whereArgs: [region]);
     return result.map((json) => Country.fromDBJson2(json)).toList();
   }
 

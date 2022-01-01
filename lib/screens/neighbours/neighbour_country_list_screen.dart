@@ -2,9 +2,9 @@ import 'package:flags_app/screens/home/widgets/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
 
 class NeighbourCountryListScreen extends StatefulWidget {
-  final String region;
+  final String country;
 
-  const NeighbourCountryListScreen({required this.region});
+  const NeighbourCountryListScreen({required this.country});
 
   @override
   _NeighbourCountryListScreenState createState() => _NeighbourCountryListScreenState();
@@ -17,7 +17,7 @@ class _NeighbourCountryListScreenState extends State<NeighbourCountryListScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Neighbours of " + widget.region),
+        title: Text("Neighbours of " + widget.country),
         centerTitle: true,
       ),
       drawer: NavigationDrawerWidget(),

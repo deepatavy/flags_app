@@ -1,19 +1,17 @@
 import 'dart:io';
 
+import 'package:flags_app/api/services.dart';
 import 'package:flags_app/commons/constants.dart';
 import 'package:flags_app/db/country_database.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flags_app/commons/exceptions.dart';
-import 'package:flags_app/screens/home/api/services.dart';
-import 'package:flags_app/screens/home/country_feed_bloc/country_list_event.dart';
-import 'package:flags_app/screens/home/country_feed_bloc/country_list_state.dart';
 import 'package:flags_app/screens/home/model/country_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
-  final CountryListRepository countryRepo;
+import 'bloc.dart';
 
-  CountryListBloc({required this.countryRepo}) : super(Empty());
+class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
+  CountryListBloc() : super(Empty());
 
   @override
   Stream<CountryListState> mapEventToState(CountryListEvents event) async* {
@@ -25,7 +23,7 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         bool isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
         if (!isDataLoaded) {
-          countryList = await countryRepo.getCountryList();
+          countryList = await CountryServices().getCountryList();
           CountryDatabase.instance.insertAllCountries(countryList);
         }
         regionList = await CountryDatabase.instance.getAllRegions();
@@ -47,13 +45,12 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
           error: UnknownException('Unknown Error'),
         );
       }
-      if (event is FetchAllCountriesForRegion) {
-        yield LoadingData();
-        List<Country> countryList = [];
-        countryList =
-            await CountryDatabase.instance.getCountriesForRegion((event as FetchAllCountriesForRegion).region);
-        yield CountryListForRegionLoaded(countryList: countryList);
-      }
+    }
+    if (event is FetchAllCountriesForRegion) {
+      yield LoadingData();
+      List<Country> countryList =
+          await CountryDatabase.instance.getCountriesForRegion(event.region);
+      yield CountryListForRegionLoaded(countryList: countryList);
     }
   }
 }
