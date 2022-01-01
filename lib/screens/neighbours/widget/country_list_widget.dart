@@ -16,7 +16,8 @@ class NeighbourCountryListWidget extends StatelessWidget {
             title: Text(countryList[index].name),
             dense: false,
             tileColor: Colors.white,
-            subtitle: Text(countryList[index].languages!.values.toString()),
+            subtitle:
+                Text(countryList[index].languages!.isNotEmpty ? countryList[index].languages!.values.toString() : ''),
             leading: Image.network(
               countryList[index].flagUrl,
               fit: BoxFit.cover,

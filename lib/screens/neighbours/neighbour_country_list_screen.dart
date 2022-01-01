@@ -5,25 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NeighbourCountryListScreen extends StatelessWidget {
-  final String country;
+  final String countryId;
+  final String countryName;
 
-  const NeighbourCountryListScreen({required this.country});
+  const NeighbourCountryListScreen({required this.countryId,required this.countryName});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CountryListBloc(),
       child: NeighbourCountryListBuild(
-        country: country,
+        countryId: countryId,
+        countryName: countryName,
       ),
     );
   }
 }
 
 class NeighbourCountryListBuild extends StatefulWidget {
-  final String country;
+  final String countryId;
+  final String countryName;
 
-  const NeighbourCountryListBuild({required this.country});
+  const NeighbourCountryListBuild({required this.countryId,required this.countryName});
 
   @override
   _NeighbourCountryListBuildState createState() => _NeighbourCountryListBuildState();
@@ -33,14 +36,14 @@ class _NeighbourCountryListBuildState extends State<NeighbourCountryListBuild> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<CountryListBloc>(context).add(FetchBorderCountries(widget.country));
+    BlocProvider.of<CountryListBloc>(context).add(FetchBorderCountries(widget.countryId));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.country + "'s Neighbours"),
+          title: Text(widget.countryName + "'s Neighbours"),
           centerTitle: true,
           actions: [
             GestureDetector(

@@ -23,13 +23,15 @@ class CountryListWidget extends StatelessWidget {
               height: 60,
               width: 60,
             ),
+            trailing: Icon(Icons.arrow_forward_ios),
             style: ListTileStyle.list,
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => NeighbourCountryListScreen(
-                          country: countryList[index].id,
+                          countryId: countryList[index].id,
+                      countryName: countryList[index].name,
                         )),
               );
             },

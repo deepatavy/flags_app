@@ -1,7 +1,6 @@
 import 'package:flags_app/commons/constants.dart';
 import 'package:flags_app/screens/home/model/border_model.dart';
 import 'package:flags_app/screens/home/model/country_model.dart';
-import 'package:flags_app/screens/home/model/language_model.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,14 +14,13 @@ class CountryDatabase {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('countries.db');
+    _database = await _initDB(Constants.DB_NAME);
     return _database!;
   }
 
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -45,14 +43,9 @@ class CountryDatabase {
           ${BorderFields.countryId} $textType, 
           ${BorderFields.neighbourId} $textType
           )''');
-
-    await db.execute('''CREATE TABLE $tableLanguage ( 
-          ${LanguageFields.id} $idType, 
-          ${LanguageFields.countryId} $textType, 
-          ${LanguageFields.language} $textType
-          )''');
   }
 
+  /// Storing Country Data To Respective Tables
   Future<void> insertAllCountries(List<Country> countryList) async {
     final db = await instance.database;
     Batch batch = db.batch();
@@ -73,16 +66,6 @@ class CountryDatabase {
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         });
-      }
-      for (String value in country.languages!.values) {
-        batch.insert(
-          tableLanguage,
-          {
-            LanguageFields.countryId: country.id,
-            LanguageFields.language: value,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
       }
     });
     batch.commit();
