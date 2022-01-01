@@ -32,7 +32,7 @@ class _HomeScreenBuildState extends State<HomeScreenBuild> {
   void initState() {
     super.initState();
     // BlocProvider.of<CountryListBloc>(context).add(CountryListEvents.fetchCountries);
-    BlocProvider.of<CountryListBloc>(context).add(CountryListEvents.fetchRegions);
+    BlocProvider.of<CountryListBloc>(context).add(FetchRegions());
   }
 
   @override

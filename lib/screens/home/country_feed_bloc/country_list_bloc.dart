@@ -17,44 +17,43 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
 
   @override
   Stream<CountryListState> mapEventToState(CountryListEvents event) async* {
-    switch (event) {
-      case CountryListEvents.fetchRegions:
-        yield LoadingData();
-        try {
-          List<String> regionList = [];
-          List<Country> countryList = [];
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          bool isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
-          if (!isDataLoaded) {
-            countryList = await countryRepo.getCountryList();
-            CountryDatabase.instance.insertAllCountries(countryList);
-          }
-          regionList = await CountryDatabase.instance.getAllRegions();
-          yield RegionListLoaded(regionList: regionList);
-        } on SocketException {
-          yield ErrorLoadingCountries(
-            error: NoInternetException('No Internet'),
-          );
-        } on HttpException {
-          yield ErrorLoadingCountries(
-            error: NoServiceFoundException('No Service Found'),
-          );
-        } on FormatException {
-          yield ErrorLoadingCountries(
-            error: InvalidFormatException('Invalid Response format'),
-          );
-        } catch (e) {
-          yield ErrorLoadingCountries(
-            error: UnknownException('Unknown Error'),
-          );
+    if (event is FetchRegions) {
+      yield LoadingData();
+      try {
+        List<String> regionList = [];
+        List<Country> countryList = [];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
+        if (!isDataLoaded) {
+          countryList = await countryRepo.getCountryList();
+          CountryDatabase.instance.insertAllCountries(countryList);
         }
-        break;
-      case CountryListEvents.fetchCountries:
+        regionList = await CountryDatabase.instance.getAllRegions();
+        yield RegionListLoaded(regionList: regionList);
+      } on SocketException {
+        yield ErrorLoadingCountries(
+          error: NoInternetException('No Internet'),
+        );
+      } on HttpException {
+        yield ErrorLoadingCountries(
+          error: NoServiceFoundException('No Service Found'),
+        );
+      } on FormatException {
+        yield ErrorLoadingCountries(
+          error: InvalidFormatException('Invalid Response format'),
+        );
+      } catch (e) {
+        yield ErrorLoadingCountries(
+          error: UnknownException('Unknown Error'),
+        );
+      }
+      if (event is FetchAllCountriesForRegion) {
         yield LoadingData();
         List<Country> countryList = [];
-        countryList = await CountryDatabase.instance.getAllCountries();
+        countryList =
+            await CountryDatabase.instance.getCountriesForRegion((event as FetchAllCountriesForRegion).region);
         yield CountryListForRegionLoaded(countryList: countryList);
-        break;
+      }
     }
   }
 }
