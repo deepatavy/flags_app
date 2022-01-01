@@ -1,11 +1,14 @@
 import 'dart:io';
 
+import 'package:flags_app/commons/constants.dart';
+import 'package:flags_app/db/country_database.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flags_app/commons/exceptions.dart';
 import 'package:flags_app/screens/home/api/services.dart';
 import 'package:flags_app/screens/home/country_feed_bloc/country_list_event.dart';
 import 'package:flags_app/screens/home/country_feed_bloc/country_list_state.dart';
 import 'package:flags_app/screens/home/model/country_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
   final CountryListRepository countryRepo;
@@ -15,12 +18,19 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
   @override
   Stream<CountryListState> mapEventToState(CountryListEvents event) async* {
     switch (event) {
-      case CountryListEvents.fetchCountries:
-        yield LoadingCountryListFromServer();
+      case CountryListEvents.fetchRegions:
+        yield LoadingData();
         try {
+          List<String> regionList = [];
           List<Country> countryList = [];
-          countryList = await countryRepo.getCountryList();
-          yield CountryListLoaded(countryList: countryList);
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          bool isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
+          if (!isDataLoaded) {
+            countryList = await countryRepo.getCountryList();
+            CountryDatabase.instance.insertAllCountries(countryList);
+          }
+          regionList = await CountryDatabase.instance.getAllRegions();
+          yield RegionListLoaded(regionList: regionList);
         } on SocketException {
           yield ErrorLoadingCountries(
             error: NoInternetException('No Internet'),
@@ -38,6 +48,12 @@ class CountryListBloc extends Bloc<CountryListEvents, CountryListState> {
             error: UnknownException('Unknown Error'),
           );
         }
+        break;
+      case CountryListEvents.fetchCountries:
+        yield LoadingData();
+        List<Country> countryList = [];
+        countryList = await CountryDatabase.instance.getAllCountries();
+        yield CountryListForRegionLoaded(countryList: countryList);
         break;
     }
   }

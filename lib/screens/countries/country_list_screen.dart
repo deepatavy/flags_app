@@ -1,5 +1,4 @@
 import 'package:flags_app/commons/asset_items.dart';
-import 'package:flags_app/screens/home/country_temp_screen.dart';
 import 'package:flags_app/screens/home/widgets/navigation_drawer_widget.dart';
 import 'package:flags_app/screens/neighbours/neighbour_country_list_screen.dart';
 import 'package:flutter/material.dart';
@@ -42,10 +41,9 @@ class _CountryListScreenState extends State<CountryListScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => CountryListTempScreen()/*NeighbourCountryListScreen(
+                    builder: (context) => NeighbourCountryListScreen(
                           region: countryList[index],
-                        )*/
-                ),
+                        )),
               );
             },
           ),

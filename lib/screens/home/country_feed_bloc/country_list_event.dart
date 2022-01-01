@@ -1,3 +1,4 @@
 enum CountryListEvents {
   fetchCountries,
+  fetchRegions
 }

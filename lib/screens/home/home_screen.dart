@@ -1,30 +1,38 @@
-import 'package:flags_app/commons/constants.dart';
 import 'package:flags_app/screens/countries/country_list_screen.dart';
+import 'package:flags_app/screens/home/api/services.dart';
 import 'package:flags_app/screens/home/widgets/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'country_feed_bloc/bloc.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CountryListBloc(countryRepo: CountryServices()),
+      child: HomeScreenBuild(),
+    );
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  List<String> regionList = ["Asia", "Africa", "Europe", "Middle East"];
-  late bool isDataLoaded;
-  late SharedPreferences prefs;
+class HomeScreenBuild extends StatefulWidget {
+  const HomeScreenBuild({Key? key}) : super(key: key);
 
-  checkForDownload() async {
-    prefs = await SharedPreferences.getInstance();
-    isDataLoaded = prefs.getBool(Constants.KEY_DATA_LOADED) ?? false;
-  }
+  @override
+  State<HomeScreenBuild> createState() => _HomeScreenBuildState();
+}
+
+class _HomeScreenBuildState extends State<HomeScreenBuild> {
+  late bool isDataLoaded;
+  late bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    checkForDownload();
+    // BlocProvider.of<CountryListBloc>(context).add(CountryListEvents.fetchCountries);
+    BlocProvider.of<CountryListBloc>(context).add(CountryListEvents.fetchRegions);
   }
 
   @override
@@ -35,24 +43,33 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       drawer: NavigationDrawerWidget(),
-      body: ListView.builder(
-        itemBuilder: (context, index) => Card(
-          child: ListTile(
-            title: Text(regionList[index]),
-            trailing: Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CountryListScreen(
-                          region: regionList[index],
-                        )),
-              );
-            },
-          ),
-        ),
-        itemCount: regionList.length,
-      ),
+      body: BlocBuilder<CountryListBloc, CountryListState>(builder: (BuildContext context, CountryListState state) {
+        if (state is ErrorLoadingCountries) {
+          final error = state.error;
+          return Center(child: Text(error.message));
+        }
+        if (state is RegionListLoaded) {
+          return ListView.builder(
+            itemBuilder: (context, index) => Card(
+              child: ListTile(
+                title: Text(state.regionList[index]),
+                trailing: Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CountryListScreen(
+                              region: state.regionList[index],
+                            )),
+                  );
+                },
+              ),
+            ),
+            itemCount: state.regionList.length,
+          );
+        }
+        return Center(child: CircularProgressIndicator());
+      }),
     );
   }
 }
